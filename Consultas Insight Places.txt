@@ -1,0 +1,51 @@
+-- MÉDIA DE ALUGUÉIS POR ESTADO
+SELECT 
+    t.estado,
+    AVG(t.qtd_alugueis) AS media_alugueis_mensal
+FROM (
+    SELECT 
+        e.estado,
+        YEAR(a.data_inicio) AS ano,
+        MONTH(a.data_inicio) AS mes,
+        COUNT(a.aluguel_id) AS qtd_alugueis
+    FROM alugueis a
+    JOIN hospedagens h ON a.hospedagem_id = h.hospedagem_id
+    JOIN enderecos e ON h.endereco_id = e.endereco_id
+    GROUP BY e.estado, YEAR(a.data_inicio), MONTH(a.data_inicio)
+) t
+GROUP BY t.estado
+ORDER BY media_alugueis_mensal DESC;
+
+-- MÉDIA ESTADIA
+SELECT 
+    AVG(DATEDIFF(data_fim, data_inicio)) AS duracao_media_dias
+FROM alugueis;
+
+-- TICKET MÉDIO POR ESTADO
+SELECT 
+    e.estado,
+    AVG(a.preco_total) AS ticket_medio
+FROM alugueis a
+JOIN hospedagens h ON a.hospedagem_id = h.hospedagem_id
+JOIN enderecos e ON h.endereco_id = e.endereco_id
+GROUP BY e.estado
+ORDER BY ticket_medio DESC;
+
+--RECEITA POR PERÍODO
+CREATE VIEW vw_receita_mensal AS
+SELECT 
+    YEAR(data_inicio) AS ano,
+    MONTH(data_inicio) AS mes,
+    SUM(preco_total) AS receita_total,
+    COUNT(*) AS total_alugueis
+FROM alugueis
+GROUP BY YEAR(data_inicio), MONTH(data_inicio);
+
+-- RECEITA TOTAL
+SELECT 
+    SUM(preco_total) AS receita_total
+FROM alugueis;
+
+-- TOTAL ALUGUEIS
+select count(*) as total_alugueis
+from alugueis;
